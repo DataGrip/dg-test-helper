@@ -1,63 +1,65 @@
-import org.jetbrains.intellij.tasks.PatchPluginXmlTask
-import org.jetbrains.intellij.tasks.PublishPluginTask
-
 plugins {
-  id("org.jetbrains.intellij") version "1.15.0"
+  id("org.jetbrains.intellij.platform") version "2.11.0"
+  kotlin("jvm") version "2.2.0"
 }
+
+version = "0.15"
+
 repositories {
   mavenCentral()
-  maven("https://dl.bintray.com/jetbrains/intellij-plugin-service")
-}
-
-allprojects {
-  version = "0.13"
-
-  apply {
-    plugin("java")
-  }
-  configure<JavaPluginExtension> {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-  }
-
-  sourceSets {
-    main {
-      java.srcDirs("main/src")
-      resources.srcDirs("main/resources")
-    }
-    test {
-      java.srcDir("tests/src")
-      resources.srcDirs("tests/testData")
-    }
-  }
-  apply {
-    plugin("org.jetbrains.intellij")
-  }
-  intellij {
-    pluginName.set("dg-test-helper")
-    type.set("IC")
-    localPath.set(project.properties["local.idea"] as String?)
-    plugins.set(listOf("java", "DatabaseTools"))
-  }
-
-  tasks {
-    withType<PatchPluginXmlTask> {
-      sinceBuild.set("233")
-      untilBuild.set("993")
-    }
-
-    withType<PublishPluginTask> {
-//      username.set(project.properties["publish.user"])
-      token.set(project.properties["publish.token"] as String?)
-      channels.set(listOf(project.properties["publish.channel"] as String? ?: "Stable"))
-    }
-    runIde {
-      maxHeapSize = "2g"
-    }
-
-    buildSearchableOptions {
-      enabled = false
-    }
+  intellijPlatform {
+    defaultRepositories()
   }
 }
 
+kotlin {
+  jvmToolchain(17)
+}
+
+sourceSets {
+  main {
+    java.srcDirs("main/src")
+    kotlin.srcDirs("main/src")
+    resources.srcDirs("main/resources")
+  }
+  test {
+    java.srcDir("tests/src")
+    kotlin.srcDirs("tests/src")
+    resources.srcDirs("tests/testData")
+  }
+}
+
+dependencies {
+  intellijPlatform {
+    val localPath = project.properties["local.idea"] as String?
+    if (localPath != null) {
+      local(localPath)
+    } else {
+      intellijIdeaUltimate("2025.3")
+    }
+    bundledPlugins("com.intellij.java", "com.intellij.database")
+  }
+}
+
+intellijPlatform {
+  pluginConfiguration {
+    name = "dg-test-helper"
+    ideaVersion {
+      sinceBuild = "233"
+      untilBuild = "993"
+    }
+  }
+  publishing {
+    token = providers.gradleProperty("publish.token")
+    channels = listOf(project.properties["publish.channel"] as String? ?: "Stable")
+  }
+}
+
+tasks {
+  runIde {
+    maxHeapSize = "2g"
+  }
+  buildSearchableOptions {
+    enabled = false
+  }
+}
