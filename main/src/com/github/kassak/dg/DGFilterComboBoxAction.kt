@@ -151,7 +151,7 @@ class DGFilterComboBoxAction : ComboBoxAction(), DumbAware {
 
       private fun navigate(ds: DGTestDataSources.DGTestDataSource) {
         val element = ds.source.element
-        DGFilterComboBoxAction.navigate(element, true)
+        navigate(element, true)
       }
     })
 
@@ -244,88 +244,85 @@ class DGFilterComboBoxAction : ComboBoxAction(), DumbAware {
     }
   }
 
-  companion object {
-    private val IS_DG_PROJECT: Key<Boolean> = Key.create("IS_DG_PROJECT")
+}
 
-    @JvmStatic
-    fun isDGProject(project: Project): Boolean {
-      var isDG = IS_DG_PROJECT.get(project)
-      if (isDG == null) {
-        isDG = ModuleManager.getInstance(project).findModuleByName("intellij.database") != null
-        IS_DG_PROJECT.set(project, isDG)
-      }
-      return isDG
-    }
+private val IS_DG_PROJECT: Key<Boolean> = Key.create("IS_DG_PROJECT")
 
-    @JvmStatic
-    fun navigate(element: XmlTag?, requestFocus: Boolean) {
-      if (element != null) {
-        val descriptor: Navigatable? = PsiNavigationSupport.getInstance().getDescriptor(element)
-        descriptor?.navigate(requestFocus)
-      }
-    }
+fun isDGProject(project: Project): Boolean {
+  var isDG = IS_DG_PROJECT.get(project)
+  if (isDG == null) {
+    isDG = ModuleManager.getInstance(project).findModuleByName("intellij.database") != null
+    IS_DG_PROJECT.set(project, isDG)
+  }
+  return isDG
+}
 
-    private fun editFilter(project: Project, def: String): CompletionStage<String> {
-      val builder = FormBuilder.createFormBuilder()
-      builder.panel.border = JBUI.Borders.empty(UIUtil.DEFAULT_VGAP, UIUtil.DEFAULT_HGAP)
-      val closeOk = Ref.create<(KeyEvent) -> Unit>()
-      val editor = object : EditorTextField(def, project, RegExpFileType.INSTANCE) {
-        override fun processKeyBinding(ks: KeyStroke?, e: KeyEvent, condition: Int, pressed: Boolean): Boolean {
-          if (!e.isConsumed && e.keyCode == KeyEvent.VK_ENTER && !closeOk.isNull) {
-            closeOk.get().invoke(e)
-            return true
-          }
-          return super.processKeyBinding(ks, e, condition, pressed)
-        }
-      }
-      editor.selectAll()
-      val comp = ComponentWithBrowseButton(editor) {
-        choosePredefined(project, editor) { text ->
-          editor.text = text
-          IdeFocusManager.getInstance(project).requestFocus(editor, true)
-        }
-      }
-      builder.addLabeledComponent("Filter:", comp)
-      val popup = JBPopupFactory.getInstance().createComponentPopupBuilder(builder.panel, editor)
-        .setTitle("Edit Filter")
-        .setResizable(true)
-        .setModalContext(true)
-        .setFocusable(true)
-        .setRequestFocus(true)
-        .setMovable(true)
-        .setBelongsToGlobalPopupStack(true)
-        .setCancelKeyEnabled(true)
-        .setCancelOnWindowDeactivation(false)
-        .setCancelOnClickOutside(true)
-        .addUserData("SIMPLE_WINDOW")
-        .createPopup()
-      closeOk.set { popup.closeOk(it) }
-      val res = CompletableFuture<String>()
-      popup.addListener(object : JBPopupListener {
-        override fun onClosed(event: LightweightWindowEvent) {
-          if (event.isOk) res.complete(editor.text)
-          else res.completeExceptionally(ProcessCanceledException())
-        }
-      })
-      popup.setMinimumSize(Dimension(200, 10))
-      popup.showCenteredInCurrentWindow(project)
-      return res
-    }
+fun navigate(element: XmlTag?, requestFocus: Boolean) {
+  if (element != null) {
+    val descriptor: Navigatable? = PsiNavigationSupport.getInstance().getDescriptor(element)
+    descriptor?.navigate(requestFocus)
+  }
+}
 
-    private fun choosePredefined(project: Project, component: JComponent, callback: (String) -> Unit) {
-      val dss = DGTestDataSources.list(project)
-        .flatten { td -> td.dataSources }
-        .sort { ds1, ds2 -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid) }
-        .toList()
-      JBPopupFactory.getInstance().createListPopup(object : BaseListPopupStep<DGTestDataSources.DGTestDataSource>("Test Data Sources", dss) {
-        override fun getIconFor(value: DGTestDataSources.DGTestDataSource) = value.getIcon()
-        override fun getTextFor(value: DGTestDataSources.DGTestDataSource) = value.uuid
-        override fun onChosen(selectedValue: DGTestDataSources.DGTestDataSource?, finalChoice: Boolean): PopupStep<*>? {
-          if (selectedValue != null) callback(selectedValue.uuid)
-          return FINAL_CHOICE
-        }
-        override fun isSpeedSearchEnabled() = true
-      }).showUnderneathOf(component)
+private fun editFilter(project: Project, def: String): CompletionStage<String> {
+  val builder = FormBuilder.createFormBuilder()
+  builder.panel.border = JBUI.Borders.empty(UIUtil.DEFAULT_VGAP, UIUtil.DEFAULT_HGAP)
+  val closeOk = Ref.create<(KeyEvent) -> Unit>()
+  val editor = object : EditorTextField(def, project, RegExpFileType.INSTANCE) {
+    override fun processKeyBinding(ks: KeyStroke?, e: KeyEvent, condition: Int, pressed: Boolean): Boolean {
+      if (!e.isConsumed && e.keyCode == KeyEvent.VK_ENTER && !closeOk.isNull) {
+        closeOk.get().invoke(e)
+        return true
+      }
+      return super.processKeyBinding(ks, e, condition, pressed)
     }
   }
+  editor.selectAll()
+  val comp = ComponentWithBrowseButton(editor) {
+    choosePredefined(project, editor) { text ->
+      editor.text = text
+      IdeFocusManager.getInstance(project).requestFocus(editor, true)
+    }
+  }
+  builder.addLabeledComponent("Filter:", comp)
+  val popup = JBPopupFactory.getInstance().createComponentPopupBuilder(builder.panel, editor)
+    .setTitle("Edit Filter")
+    .setResizable(true)
+    .setModalContext(true)
+    .setFocusable(true)
+    .setRequestFocus(true)
+    .setMovable(true)
+    .setBelongsToGlobalPopupStack(true)
+    .setCancelKeyEnabled(true)
+    .setCancelOnWindowDeactivation(false)
+    .setCancelOnClickOutside(true)
+    .addUserData("SIMPLE_WINDOW")
+    .createPopup()
+  closeOk.set { popup.closeOk(it) }
+  val res = CompletableFuture<String>()
+  popup.addListener(object : JBPopupListener {
+    override fun onClosed(event: LightweightWindowEvent) {
+      if (event.isOk) res.complete(editor.text)
+      else res.completeExceptionally(ProcessCanceledException())
+    }
+  })
+  popup.setMinimumSize(Dimension(200, 10))
+  popup.showCenteredInCurrentWindow(project)
+  return res
+}
+
+private fun choosePredefined(project: Project, component: JComponent, callback: (String) -> Unit) {
+  val dss = DGTestDataSources.list(project)
+    .flatten { td -> td.dataSources }
+    .sort { ds1, ds2 -> StringUtil.naturalCompare(ds1.uuid, ds2.uuid) }
+    .toList()
+  JBPopupFactory.getInstance().createListPopup(object : BaseListPopupStep<DGTestDataSources.DGTestDataSource>("Test Data Sources", dss) {
+    override fun getIconFor(value: DGTestDataSources.DGTestDataSource) = value.getIcon()
+    override fun getTextFor(value: DGTestDataSources.DGTestDataSource) = value.uuid
+    override fun onChosen(selectedValue: DGTestDataSources.DGTestDataSource?, finalChoice: Boolean): PopupStep<*>? {
+      if (selectedValue != null) callback(selectedValue.uuid)
+      return FINAL_CHOICE
+    }
+    override fun isSpeedSearchEnabled() = true
+  }).showUnderneathOf(component)
 }

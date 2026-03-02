@@ -63,7 +63,7 @@ class DGTestConfigEntityContributor : GotoClassContributor, ChooseByNameContribu
       }
 
       override fun navigate(requestFocus: Boolean) {
-        DGFilterComboBoxAction.navigate(item.getSource(), requestFocus)
+        navigate(item.getSource(), requestFocus)
       }
 
       override fun canNavigate(): Boolean = true

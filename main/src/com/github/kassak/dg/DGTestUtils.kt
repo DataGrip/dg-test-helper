@@ -31,13 +31,13 @@ object DGTestUtils {
   }
 
   fun findDGModule(project: Project, moduleName: String): Module? {
-    return if (DGFilterComboBoxAction.isDGProject(project))
+    return if (isDGProject(project))
       ModuleManager.getInstance(project).findModuleByName(moduleName)
     else null
   }
 
   fun getDGModules(project: Project): JBIterable<Module> {
-    return if (DGFilterComboBoxAction.isDGProject(project))
+    return if (isDGProject(project))
       JBIterable.of(*ModuleManager.getInstance(project).modules)
     else
       JBIterable.empty()
