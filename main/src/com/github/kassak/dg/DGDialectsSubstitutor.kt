@@ -12,19 +12,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutor
 
 class DGDialectsSubstitutor : LanguageSubstitutor() {
-  companion object {
-    private val MAPPING: Map<String, Dbms> = buildMap {
-      for (dbms in Dbms.allValues()) {
-        put(StringUtil.toLowerCase(dbms.name), dbms)
-      }
-      put("hsql", Dbms.HSQL)
-      put("tsql", Dbms.MSSQL)
-      put("pg", Dbms.POSTGRES)
-      put("postgresql", Dbms.POSTGRES)
-      put("chouse", Dbms.CLICKHOUSE)
-    }
-  }
-
   override fun getLanguage(file: VirtualFile, project: Project): Language? {
     if (!isDGTestData(project, file)) return null
     val dbms = getDbms(file, project) ?: return null
@@ -52,4 +39,15 @@ class DGDialectsSubstitutor : LanguageSubstitutor() {
     val module: Module? = ProjectFileIndex.getInstance(project).getModuleForFile(file)
     return module != null && module.name.startsWith("intellij.database") && module.name.contains("test")
   }
+}
+
+private val MAPPING: Map<String, Dbms> = buildMap {
+  for (dbms in Dbms.allValues()) {
+    put(StringUtil.toLowerCase(dbms.name), dbms)
+  }
+  put("hsql", Dbms.HSQL)
+  put("tsql", Dbms.MSSQL)
+  put("pg", Dbms.POSTGRES)
+  put("postgresql", Dbms.POSTGRES)
+  put("chouse", Dbms.CLICKHOUSE)
 }

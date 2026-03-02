@@ -7,7 +7,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.patterns.ElementPattern
 import com.intellij.patterns.PatternCondition
-import com.intellij.patterns.PlatformPatterns
 import com.intellij.patterns.StringPattern
 import com.intellij.patterns.XmlPatterns.*
 import com.intellij.psi.*
@@ -15,7 +14,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.xml.XmlAttributeValue
 import com.intellij.psi.xml.XmlTag
 import com.intellij.util.ArrayUtil
-import com.intellij.util.IncorrectOperationException
 import com.intellij.util.ProcessingContext
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.containers.JBIterable
@@ -42,7 +40,7 @@ class DGConfigReferenceContributor : PsiReferenceContributor() {
 
   private fun driverRefValue(): ElementPattern<XmlTag> {
     return xmlTag().withName("driver-ref")
-      .inFile(PlatformPatterns.psiFile().withName(PlatformPatterns.string().with(
+      .inFile(psiFile().withName(string().with(
         object : PatternCondition<String>("DGTestDataSources.isTestDataSource") {
           override fun accepts(s: String, processingContext: ProcessingContext?): Boolean =
             DGTestDataSources.isTestDataSource(s)
@@ -53,23 +51,23 @@ class DGConfigReferenceContributor : PsiReferenceContributor() {
   private fun driverBaseValue(): ElementPattern<XmlAttributeValue> {
     return xmlAttributeValue("based-on")
       .withSuperParent(2, xmlTag().withName("driver"))
-      .inFile(PlatformPatterns.psiFile().withName(isTestDatabaseDrivers()))
+      .inFile(psiFile().withName(isTestDatabaseDrivers()))
   }
 
   private fun driverArtifactIdValue(): ElementPattern<XmlAttributeValue> {
     return xmlAttributeValue("id")
       .withSuperParent(2, xmlTag().withName("artifact"))
-      .inFile(PlatformPatterns.psiFile().withName(isTestDatabaseDrivers()))
+      .inFile(psiFile().withName(isTestDatabaseDrivers()))
   }
 
   private fun driverArtifactVersionValue(): ElementPattern<XmlAttributeValue> {
     return xmlAttributeValue("version")
       .withSuperParent(2, xmlTag().withName("artifact"))
-      .inFile(PlatformPatterns.psiFile().withName(isTestDatabaseDrivers()))
+      .inFile(psiFile().withName(isTestDatabaseDrivers()))
   }
 
   private fun isTestDatabaseDrivers(): StringPattern {
-    return PlatformPatterns.string().with(
+    return string().with(
       object : PatternCondition<String>("DGTestDrivers.isTestDatabaseDrivers") {
         override fun accepts(s: String, processingContext: ProcessingContext?): Boolean =
           DGTestDrivers.isTestDatabaseDrivers(s)
@@ -103,7 +101,7 @@ class DGConfigReferenceContributor : PsiReferenceContributor() {
         .toArray(ResolveResult.EMPTY_ARRAY)
     }
 
-    override fun handleElementRename(s: String): PsiElement? = null
+    override fun handleElementRename(newElementName: String): PsiElement? = null
 
     override fun getVariants(): Array<Any> {
       return getArtifacts()
@@ -143,7 +141,7 @@ class DGConfigReferenceContributor : PsiReferenceContributor() {
         .toArray(ResolveResult.EMPTY_ARRAY)
     }
 
-    override fun handleElementRename(s: String): PsiElement? = null
+    override fun handleElementRename(newElementName: String): PsiElement? = null
 
     override fun getVariants(): Array<Any> {
       return DGTestArtifacts.list(element.project)
