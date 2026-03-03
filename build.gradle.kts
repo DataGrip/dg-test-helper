@@ -3,7 +3,7 @@ plugins {
   kotlin("jvm") version "2.2.0"
 }
 
-version = "0.15"
+version = "0.16"
 
 repositories {
   mavenCentral()
@@ -13,7 +13,7 @@ repositories {
 }
 
 kotlin {
-  jvmToolchain(17)
+  jvmToolchain(21)
 }
 
 sourceSets {
@@ -46,7 +46,7 @@ intellijPlatform {
     name = "dg-test-helper"
     ideaVersion {
       sinceBuild = "233"
-      untilBuild = "993"
+      untilBuild = "993.*"
     }
   }
   publishing {
