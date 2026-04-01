@@ -1,8 +1,8 @@
 package com.github.kassak.dg
 
 import com.intellij.database.Dbms
-import com.intellij.database.util.DbSqlUtil
 import com.intellij.database.util.SqlDialects
+import com.intellij.sql.dialects.SqlLanguageDialect
 import com.intellij.lang.Language
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -15,7 +15,7 @@ class DGDialectsSubstitutor : LanguageSubstitutor() {
   override fun getLanguage(file: VirtualFile, project: Project): Language? {
     if (!isDGTestData(project, file)) return null
     val dbms = getDbms(file, project) ?: return null
-    val dialect = DbSqlUtil.getSqlDialect(dbms)
+    val dialect = SqlLanguageDialect.EP.forDbms(dbms) ?: SqlDialects.getGenericDialect()
     return if (SqlDialects.getGenericDialect() == dialect) null else dialect
   }
 
