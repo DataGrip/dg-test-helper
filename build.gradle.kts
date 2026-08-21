@@ -1,9 +1,11 @@
+import org.jetbrains.intellij.platform.gradle.tasks.PrepareSandboxTask
+
 plugins {
   id("org.jetbrains.intellij.platform") version "2.18.1"
   kotlin("jvm") version "2.4.0"
 }
 
-version = "0.17"
+version = "0.18"
 
 repositories {
   mavenCentral()
@@ -29,7 +31,17 @@ sourceSets {
   }
 }
 
+// The eager engine ships beside the plugin, not inside it: `DGConfigurationExtension` puts this jar on the
+// classpath of a test run, and that is the whole of the switch. `isTransitive = false` because only the jar
+// travels -- junit-platform and kotlin-stdlib are already on any dbe test classpath.
+val eagerParamsRt: Configuration by configurations.creating {
+  isCanBeConsumed = false
+  isCanBeResolved = true
+  isTransitive = false
+}
+
 dependencies {
+  eagerParamsRt(project(":eagerParams"))
   intellijPlatform {
     val localPath = project.properties["local.idea"] as String?
     if (localPath != null) {
@@ -61,5 +73,14 @@ tasks {
   }
   buildSearchableOptions {
     enabled = false
+  }
+  // `rt`, deliberately not `lib`: anything under `lib` joins the plugin's classloader, and a JUnit engine
+  // registered through META-INF/services has no business being visible to the IDE. buildPlugin zips the
+  // whole plugin directory, so this reaches the distribution too.
+  withType<PrepareSandboxTask>().configureEach {
+    from(eagerParamsRt) {
+      into(pluginName.map { "$it/rt" })
+      rename { "eagerParams.jar" }
+    }
   }
 }

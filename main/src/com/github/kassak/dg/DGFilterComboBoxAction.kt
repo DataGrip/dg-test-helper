@@ -64,6 +64,7 @@ class DGFilterComboBoxAction : ComboBoxAction(), DumbAware {
     actions.add(MyOverwriteAction())
     actions.add(MyInProcessRmiAction())
     actions.add(MyAttachRemoteAction())
+    actions.add(MyEagerParamsAction())
     actions.add(Separator.getInstance())
     for (filter in settings.getFilters()) {
       if (filter.isNotEmpty()) actions.add(MyFilterAction(filter))
@@ -241,6 +242,15 @@ class DGFilterComboBoxAction : ComboBoxAction(), DumbAware {
       e.project?.let { DGTestSettings.getInstance(it).isAttachRemote() } ?: false
     override fun setSelected(e: AnActionEvent, selected: Boolean) {
       e.project?.let { DGTestSettings.getInstance(it).setAttachRemote(selected) }
+    }
+  }
+
+  private class MyEagerParamsAction : ToggleAction("Eager Parametrisation"), DumbAware {
+    override fun getActionUpdateThread(): ActionUpdateThread = ActionUpdateThread.BGT
+    override fun isSelected(e: AnActionEvent): Boolean =
+      e.project?.let { DGTestSettings.getInstance(it).isEagerParams() } ?: false
+    override fun setSelected(e: AnActionEvent, selected: Boolean) {
+      e.project?.let { DGTestSettings.getInstance(it).setEagerParams(selected) }
     }
   }
 

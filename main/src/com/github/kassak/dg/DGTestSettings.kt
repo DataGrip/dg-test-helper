@@ -31,6 +31,8 @@ class DGTestSettings : PersistentStateComponent<DGTestSettings.State> {
   fun setInProcessRmi(inProcessRmi: Boolean) { myState.inProcessRmi = inProcessRmi }
   fun isAttachRemote(): Boolean = myState.attachRemote
   fun setAttachRemote(attachRemote: Boolean) { myState.attachRemote = attachRemote }
+  fun isEagerParams(): Boolean = myState.eagerParams
+  fun setEagerParams(eagerParams: Boolean) { myState.eagerParams = eagerParams }
 
   class State {
     @JvmField var filters: MutableSet<String> = sortedSetOf()
@@ -39,5 +41,6 @@ class DGTestSettings : PersistentStateComponent<DGTestSettings.State> {
     @JvmField var overwrite: Boolean = false
     @JvmField var inProcessRmi: Boolean = false
     @JvmField var attachRemote: Boolean = false
+    @JvmField var eagerParams: Boolean = true
   }
 }
