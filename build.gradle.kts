@@ -1,6 +1,6 @@
 plugins {
-  id("org.jetbrains.intellij.platform") version "2.11.0"
-  kotlin("jvm") version "2.2.0"
+  id("org.jetbrains.intellij.platform") version "2.18.1"
+  kotlin("jvm") version "2.4.0"
 }
 
 version = "0.17"
@@ -45,7 +45,7 @@ intellijPlatform {
   pluginConfiguration {
     name = "dg-test-helper"
     ideaVersion {
-      sinceBuild = "233"
+      sinceBuild = "262"
       untilBuild = "993.*"
     }
   }
