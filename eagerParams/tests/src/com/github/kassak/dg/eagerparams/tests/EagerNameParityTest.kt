@@ -114,7 +114,7 @@ class EagerNameParityTest {
 
     assertThat(EagerParamsTestSupport.plannedInvocations(
       plan, EagerParamsTestSupport.eagerRoot(plan), setOf(TEMPLATE_INVOCATION_SEGMENT),
-    )).containsExactly("Renamed method fixture #1 <d1>", "Renamed method fixture #2 <d2>")
+    )).containsExactly("Renamed method fixture #1 <\"d1\">", "Renamed method fixture #2 <\"d2\">")
   }
 
   /**
@@ -126,7 +126,7 @@ class EagerNameParityTest {
     val plan = EagerParamsTestSupport.discoverEager(ValueSourceParityFixture::class.java)
 
     assertThat(EagerParamsTestSupport.plannedInvocations(plan, EagerParamsTestSupport.eagerRoot(plan)))
-      .containsExactly("[1] value=a", "[2] value=b")
+      .containsExactly("[1] value = \"a\"", "[2] value = \"b\"")
   }
 
   @Test
@@ -134,7 +134,7 @@ class EagerNameParityTest {
     val plan = EagerParamsTestSupport.discoverEager(DisplayNamePatternParityFixture::class.java)
 
     assertThat(EagerParamsTestSupport.plannedInvocations(plan, EagerParamsTestSupport.eagerRoot(plan)))
-      .containsExactly("Renamed parity fixture #1 <d1>", "Renamed parity fixture #2 <d2>")
+      .containsExactly("Renamed parity fixture #1 <\"d1\">", "Renamed parity fixture #2 <\"d2\">")
   }
 
   /** Argument sets name the invocation themselves, and the default pattern prefers that name. */

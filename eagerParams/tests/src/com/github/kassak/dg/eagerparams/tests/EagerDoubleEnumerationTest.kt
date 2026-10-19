@@ -60,7 +60,7 @@ class EagerDoubleEnumerationTest {
     val lazy = EagerParamsTestSupport.run(CountingFactoryFixture::class.java)
 
     assertThat(eager.failureMessages()).isEmpty()
-    assertThat(eager.invocationNames()).containsExactly("c1", "c2")
+    assertThat(eager.invocationNames()).containsExactly("\"c1\"", "\"c2\"")
     assertThat(eager.recorded).isEqualTo(lazy.recorded)
     assertThat(eager.startedTests()).isEqualTo(lazy.startedTests())
   }

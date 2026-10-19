@@ -96,7 +96,7 @@ internal class DiscoveryExtensionContext private constructor(
 
   override fun getConfigurationParameter(key: String): Optional<String> = configuration.get(key)
 
-  override fun <T : Any?> getConfigurationParameter(key: String, transformer: Function<String, T>): Optional<T> =
+  override fun <T : Any> getConfigurationParameter(key: String, transformer: Function<in String, out T?>): Optional<T> =
     configuration.get(key, transformer)
 
   override fun getExecutionMode(): ExecutionMode = ExecutionMode.SAME_THREAD
@@ -188,20 +188,31 @@ private class DiscoveryStore(val namespace: ExtensionContext.Namespace) : Extens
 
   override fun get(key: Any): Any? = values[key]
 
-  override fun <V : Any?> get(key: Any, requiredType: Class<V>): V? = cast(values[key], requiredType)
+  override fun <V : Any> get(key: Any, requiredType: Class<V>): V? = cast(values[key], requiredType)
 
-  override fun <K : Any?, V : Any?> getOrComputeIfAbsent(key: K, defaultCreator: Function<K, V>): Any? {
-    values[key as Any]?.let { return it }
+  @Deprecated("Deprecated in Java")
+  override fun <K : Any, V> getOrComputeIfAbsent(key: K, defaultCreator: Function<in K, out V>): Any? {
+    values[key]?.let { return it }
     val created = defaultCreator.apply(key) ?: return null
     values[key] = created
     return created
   }
 
-  override fun <K : Any?, V : Any?> getOrComputeIfAbsent(
+  @Deprecated("Deprecated in Java")
+  override fun <K : Any, V> getOrComputeIfAbsent(
     key: K,
-    defaultCreator: Function<K, V>,
+    defaultCreator: Function<in K, out V>,
     requiredType: Class<V>,
-  ): V? = cast(getOrComputeIfAbsent(key, defaultCreator), requiredType)
+  ): V? = cast(@Suppress("DEPRECATION") getOrComputeIfAbsent(key, defaultCreator), requiredType)
+
+  override fun <K : Any, V : Any> computeIfAbsent(key: K, defaultCreator: Function<in K, out V>): Any =
+    values.getOrPut(key) { defaultCreator.apply(key) }
+
+  override fun <K : Any, V : Any> computeIfAbsent(
+    key: K,
+    defaultCreator: Function<in K, out V>,
+    requiredType: Class<V>,
+  ): V = requiredType.cast(computeIfAbsent(key, defaultCreator))
 
   override fun put(key: Any, value: Any?) {
     if (value == null) values.remove(key) else values[key] = value
@@ -209,7 +220,7 @@ private class DiscoveryStore(val namespace: ExtensionContext.Namespace) : Extens
 
   override fun remove(key: Any): Any? = values.remove(key)
 
-  override fun <V : Any?> remove(key: Any, requiredType: Class<V>): V? = cast(values.remove(key), requiredType)
+  override fun <V : Any> remove(key: Any, requiredType: Class<V>): V? = cast(values.remove(key), requiredType)
 
   @Suppress("DEPRECATION", "removal")
   override fun close() {
@@ -243,7 +254,7 @@ private class DiscoveryStore(val namespace: ExtensionContext.Namespace) : Extens
 private object DiscoveryExecutableInvoker : ExecutableInvoker {
   override fun invoke(method: Method, target: Any?): Any? = ReflectionSupport.invokeMethod(method, target)
 
-  override fun <T : Any?> invoke(constructor: Constructor<T>, outerInstance: Any?): T {
+  override fun <T : Any> invoke(constructor: Constructor<T>, outerInstance: Any?): T {
     if (constructor.parameterCount != 0 || outerInstance != null) {
       throw UnsupportedOperationException(
         "Only no-argument constructors can be invoked while discovering: ${constructor.declaringClass.name}"

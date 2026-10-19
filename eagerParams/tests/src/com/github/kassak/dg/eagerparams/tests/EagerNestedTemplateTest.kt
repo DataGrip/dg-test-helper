@@ -25,11 +25,11 @@ class EagerNestedTemplateTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  BothAxesFixture",
-      "    A",
+      "    \"A\"",
       "      each(int)",
       "        1",
       "        2",
-      "    B",
+      "    \"B\"",
       "      each(int)",
       "        1",
       "        2",
@@ -56,8 +56,8 @@ class EagerNestedTemplateTest {
       "  OuterWithNestedTemplateFixture",
       "    Inner",
       "      each(String)",
-      "        n1",
-      "        n2",
+      "        \"n1\"",
+      "        \"n2\"",
       "    outer()",
     )
   }
@@ -71,14 +71,14 @@ class EagerNestedTemplateTest {
       "Eager Parameterized Classes",
       "  OuterWithNestedClassTemplateFixture",
       "    Inner",
-      "      i1",
+      "      \"i1\"",
       "        records()",
-      "      i2",
+      "      \"i2\"",
       "        records()",
       "    outer()",
     )
     assertThat(EagerParamsTestSupport.plannedInvocations(plan, EagerParamsTestSupport.eagerRoot(plan)))
-      .containsExactly("i1", "i2")
+      .containsExactly("\"i1\"", "\"i2\"")
   }
 
   @Test

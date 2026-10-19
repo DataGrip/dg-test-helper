@@ -3,6 +3,6 @@
 // file. `intellijPlatform.pluginConfiguration.name` does not control it.
 rootProject.name = "dg-test-helper"
 
-// Plain kotlin("jvm"), deliberately without the IntelliJ Platform: a JUnit 5 engine must not have an
+// Plain kotlin("jvm"), deliberately without the IntelliJ Platform: a JUnit 6 engine must not have an
 // IDE (and its own JUnit) on its classpath.
 include("eagerParams")

@@ -32,7 +32,7 @@ internal const val PROBE_PARAMETER: String = "intellij.test.eagerParams.probe"
  */
 class EagerFactoryProbe : InvocationInterceptor {
   override fun interceptDynamicTest(
-    invocation: InvocationInterceptor.Invocation<Void>,
+    invocation: InvocationInterceptor.Invocation<Void?>,
     invocationContext: DynamicTestInvocationContext,
     extensionContext: ExtensionContext,
   ) {

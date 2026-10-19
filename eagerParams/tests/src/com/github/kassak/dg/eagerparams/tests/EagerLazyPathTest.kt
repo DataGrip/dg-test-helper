@@ -46,9 +46,9 @@ class EagerLazyPathTest {
     assertThat(run.failures()).isEmpty()
     // Three invocations plus one test method inside each.
     assertThat(run.dynamicallyRegistered()).containsExactly(
-      "[1] alpha", "records(TestInfo)",
-      "[2] beta", "records(TestInfo)",
-      "[3] gamma", "records(TestInfo)",
+      "[1] \"alpha\"", "records(TestInfo)",
+      "[2] \"beta\"", "records(TestInfo)",
+      "[3] \"gamma\"", "records(TestInfo)",
     )
   }
 
@@ -67,13 +67,13 @@ class EagerLazyPathTest {
   @Test
   fun `every well-formed fixture produces a stable tree`() {
     val expected = mapOf(
-      SingleArgumentFixture::class.java to listOf("[1] alpha", "[2] beta", "[3] gamma"),
-      MultipleArgumentsFixture::class.java to listOf("a=#1", "b=#2"),
-      ConstructorInjectionFixture::class.java to listOf("x/1", "y/2"),
+      SingleArgumentFixture::class.java to listOf("[1] \"alpha\"", "[2] \"beta\"", "[3] \"gamma\""),
+      MultipleArgumentsFixture::class.java to listOf("\"a\"=#\"1\"", "\"b\"=#\"2\""),
+      ConstructorInjectionFixture::class.java to listOf("\"x\"/\"1\"", "\"y\"/\"2\""),
       NamedSetFixture::class.java to listOf("first set", "second set"),
-      TwoMethodsFixture::class.java to listOf("p", "q"),
-      InheritsFieldFixture::class.java to listOf("base1", "base2"),
-      DeclaredFieldFixture::class.java to listOf("base1", "base2"),
+      TwoMethodsFixture::class.java to listOf("\"p\"", "\"q\""),
+      InheritsFieldFixture::class.java to listOf("\"base1\"", "\"base2\""),
+      DeclaredFieldFixture::class.java to listOf("\"base1\"", "\"base2\""),
     )
 
     for ((fixture, invocationNames) in expected) {

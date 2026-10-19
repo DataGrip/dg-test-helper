@@ -354,7 +354,7 @@ private class RecordingListener : TestExecutionListener {
     }
   }
 
-  override fun executionSkipped(testIdentifier: TestIdentifier, reason: String?) {
+  override fun executionSkipped(testIdentifier: TestIdentifier, reason: String) {
     add(EagerEventKind.SKIPPED, testIdentifier) { copyOf(it, skipReason = reason) }
   }
 

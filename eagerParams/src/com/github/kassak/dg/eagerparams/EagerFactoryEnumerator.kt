@@ -1,12 +1,13 @@
 package com.github.kassak.dg.eagerparams
 
-import org.junit.jupiter.engine.Constants
+import org.junit.jupiter.api.Constants
 import org.junit.platform.engine.ConfigurationParameters
 import org.junit.platform.engine.DiscoveryFilter
 import org.junit.platform.engine.DiscoverySelector
 import org.junit.platform.engine.EngineDiscoveryListener
 import org.junit.platform.engine.EngineDiscoveryRequest
 import org.junit.platform.engine.EngineExecutionListener
+import org.junit.platform.engine.CancellationToken
 import org.junit.platform.engine.ExecutionRequest
 import org.junit.platform.engine.OutputDirectoryCreator
 import org.junit.platform.engine.TestDescriptor
@@ -115,7 +116,9 @@ internal class EagerFactoryEnumerator(
 
     val collected = CollectingExecutionListener()
     jupiterEngine.execute(
-      ExecutionRequest.create(root, collected, configuration, request.outputDirectoryCreator, probeStore())
+      ExecutionRequest.create(
+        root, collected, configuration, request.outputDirectoryCreator, probeStore(), CancellationToken.disabled(),
+      )
     )
     return EagerFactoryChildren(collected.byParent)
   }
@@ -164,9 +167,6 @@ internal class EagerFactoryEnumerator(
 
     override fun getBoolean(key: String): Optional<Boolean> =
       overrides[key]?.let { Optional.of(it.toBoolean()) } ?: delegate.getBoolean(key)
-
-    @Deprecated("Deprecated in Java")
-    override fun size(): Int = keySet().size
 
     override fun keySet(): Set<String> = delegate.keySet() + overrides.keys
   }

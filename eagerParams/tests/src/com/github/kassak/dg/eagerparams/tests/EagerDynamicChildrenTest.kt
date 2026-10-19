@@ -23,7 +23,7 @@ class EagerDynamicChildrenTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  DynamicChildrenFixture",
-      "    u",
+      "    \"u\"",
       "      each(int)",
       "        [1] 1",
       "        [2] 2",

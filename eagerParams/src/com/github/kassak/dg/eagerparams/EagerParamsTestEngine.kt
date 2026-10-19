@@ -131,7 +131,7 @@ class EagerParamsTestEngine : TestEngine {
     jupiterEngine.execute(
       ExecutionRequest.create(
         jupiterRoot, translating, request.configurationParameters,
-        request.outputDirectoryCreator, request.store,
+        request.outputDirectoryCreator, request.store, request.cancellationToken,
       )
     )
     translating.reportUnvisited()

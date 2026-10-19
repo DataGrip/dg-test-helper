@@ -12,8 +12,8 @@ kotlin {
   jvmToolchain(21)
 }
 
-// junit-jupiter 5.14.4 <-> junit-platform 1.14.4. Every JUnit coordinate below is unversioned.
-val junitBom = "org.junit:junit-bom:5.14.4"
+// JUnit 6 versions jupiter and platform in lockstep. Every JUnit coordinate below is unversioned.
+val junitBom = "org.junit:junit-bom:6.1.3"
 
 sourceSets {
   // setSrcDirs rather than srcDirs: the main source directory is literally named `src`, so the
@@ -46,7 +46,7 @@ dependencies {
   implementation("org.junit.platform:junit-platform-launcher")
   implementation("org.junit.jupiter:junit-jupiter-api")
   implementation("org.jetbrains:annotations:26.0.2") // @TestOnly in EagerParamsSwitches.kt
-  // Jupiter engine internals: org.junit.jupiter.engine.Constants, .config.DefaultJupiterConfiguration,
+  // Jupiter engine internals: org.junit.jupiter.engine.config.DefaultJupiterConfiguration,
   // .extension.MutableExtensionRegistry. compileOnly keeps this jar off every runtime classpath, so
   // the test source set has to ask for it again below.
   compileOnly("org.junit.jupiter:junit-jupiter-engine")

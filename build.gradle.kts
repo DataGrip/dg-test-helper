@@ -5,7 +5,7 @@ plugins {
   kotlin("jvm") version "2.4.0"
 }
 
-version = "0.18"
+version = "0.19"
 
 repositories {
   mavenCentral()
@@ -57,7 +57,7 @@ intellijPlatform {
   pluginConfiguration {
     name = "dg-test-helper"
     ideaVersion {
-      sinceBuild = "262"
+      sinceBuild = "263"
       untilBuild = "993.*"
     }
   }

@@ -24,11 +24,11 @@ class EagerTreeShapeTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  SingleArgumentFixture",
-      "    [1] alpha",
+      "    [1] \"alpha\"",
       "      records(TestInfo)",
-      "    [2] beta",
+      "    [2] \"beta\"",
       "      records(TestInfo)",
-      "    [3] gamma",
+      "    [3] \"gamma\"",
       "      records(TestInfo)",
     )
   }
@@ -40,10 +40,10 @@ class EagerTreeShapeTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  TwoMethodsFixture",
-      "    p",
+      "    \"p\"",
       "      first()",
       "      second()",
-      "    q",
+      "    \"q\"",
       "      first()",
       "      second()",
     )
@@ -106,7 +106,7 @@ class EagerTreeShapeTest {
 
     val fqcn = TwoMethodsFixture::class.java.name
     val classNode = plan.getChildren(EagerParamsTestSupport.eagerRoot(plan)!!).single()
-    val leaf = EagerParamsTestSupport.child(plan, EagerParamsTestSupport.child(plan, classNode, "p"), "first()")
+    val leaf = EagerParamsTestSupport.child(plan, EagerParamsTestSupport.child(plan, classNode, "\"p\""), "first()")
     assertThat(leaf.uniqueId).isEqualTo(
       "[engine:intellij-eager-params]/[class-template:$fqcn]/[class-template-invocation:#1]/[method:first()]"
     )
@@ -120,7 +120,7 @@ class EagerTreeShapeTest {
     val classNode = plan.getChildren(EagerParamsTestSupport.eagerRoot(plan)!!).single()
     val byName = plan.getChildren(classNode).associate { it.displayName to it.uniqueIdObject.lastSegment.value }
     assertThat(byName).containsExactlyInAnyOrderEntriesOf(
-      mapOf("[1] alpha" to "#1", "[2] beta" to "#2", "[3] gamma" to "#3")
+      mapOf("[1] \"alpha\"" to "#1", "[2] \"beta\"" to "#2", "[3] \"gamma\"" to "#3")
     )
   }
 
@@ -142,7 +142,7 @@ class EagerTreeShapeTest {
     val plan = EagerParamsTestSupport.discoverEager(TwoMethodsFixture::class.java)
 
     val classNode = plan.getChildren(EagerParamsTestSupport.eagerRoot(plan)!!).single()
-    val method = EagerParamsTestSupport.child(plan, EagerParamsTestSupport.child(plan, classNode, "p"), "second()")
+    val method = EagerParamsTestSupport.child(plan, EagerParamsTestSupport.child(plan, classNode, "\"p\""), "second()")
     assertThat(method.legacyReportingName).isEqualTo("second()")
   }
 

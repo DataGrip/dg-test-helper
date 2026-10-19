@@ -123,7 +123,7 @@ class EagerDegradationTest {
 
     assertThat(run.failureMessages()).isEmpty()
     assertThat(run.recorded).containsExactly("instance:i1", "instance:i2")
-    assertThat(run.dynamicallyRegistered()).contains("[1] i1", "[2] i2")
+    assertThat(run.dynamicallyRegistered()).contains("[1] \"i1\"", "[2] \"i2\"")
   }
 
   /**

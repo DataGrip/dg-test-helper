@@ -32,8 +32,8 @@ class EagerMethodTemplateTest {
       "Eager Parameterized Classes",
       "  ParameterizedMethodFixture",
       "    each(String)",
-      "      m1",
-      "      m2",
+      "      \"m1\"",
+      "      \"m2\"",
     )
   }
 

@@ -45,11 +45,11 @@ class EagerExecutionTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  SingleArgumentFixture",
-      "    [1] alpha",
+      "    [1] \"alpha\"",
       "      records(TestInfo)",
-      "    [2] beta",
+      "    [2] \"beta\"",
       "      records(TestInfo)",
-      "    [3] gamma",
+      "    [3] \"gamma\"",
       "      records(TestInfo)",
     )
   }
@@ -69,7 +69,7 @@ class EagerExecutionTest {
     val finished = run.eagerEvents().filter { it.kind == EagerEventKind.FINISHED }.map { it.displayName }
     assertThat(started).containsExactlyInAnyOrder(
       "Eager Parameterized Classes",
-      "TwoMethodsFixture", "p", "first()", "second()", "q", "first()", "second()",
+      "TwoMethodsFixture", "\"p\"", "first()", "second()", "\"q\"", "first()", "second()",
     )
     assertThat(finished).containsExactlyInAnyOrderElementsOf(started)
     assertThat(run.skipped()).isEmpty()

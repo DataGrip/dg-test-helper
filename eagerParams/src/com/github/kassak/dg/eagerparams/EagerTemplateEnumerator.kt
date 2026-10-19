@@ -14,6 +14,7 @@ import org.junit.platform.engine.TestDescriptor
 import org.junit.platform.engine.UniqueId
 import org.junit.platform.engine.support.descriptor.ClassSource
 import org.junit.platform.engine.support.descriptor.MethodSource
+import org.junit.platform.engine.support.discovery.DiscoveryIssueReporter
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
@@ -56,7 +57,8 @@ internal class EagerTemplateEnumerator(
   private val defaults: MutableExtensionRegistry? by lazy {
     try {
       MutableExtensionRegistry.createRegistryWithDefaultExtensions(
-        DefaultJupiterConfiguration(configuration, outputDirectoryCreator)
+        // Issues about the configuration itself are Jupiter's to report, and it does in the real discovery.
+        DefaultJupiterConfiguration(configuration, outputDirectoryCreator, DiscoveryIssueReporter.consuming {})
       )
     }
     catch (_: Throwable) {

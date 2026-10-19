@@ -39,7 +39,7 @@ internal class TranslatingEngineExecutionListener(
     translate(testDescriptor)
   }
 
-  override fun executionSkipped(testDescriptor: TestDescriptor, reason: String?) {
+  override fun executionSkipped(testDescriptor: TestDescriptor, reason: String) {
     val ours = translate(testDescriptor) ?: return
     if (ours === root) return
     markVisited(ours)

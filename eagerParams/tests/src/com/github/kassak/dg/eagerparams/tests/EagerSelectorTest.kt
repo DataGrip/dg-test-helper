@@ -46,7 +46,7 @@ class EagerSelectorTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  TwoMethodsFixture",
-      "    q",
+      "    \"q\"",
       "      first()",
       "      second()",
     )
@@ -91,10 +91,10 @@ class EagerSelectorTest {
     assertThat(EagerParamsTestSupport.tree(plan, EagerParamsTestSupport.eagerRoot(plan))).containsExactly(
       "Eager Parameterized Classes",
       "  NestedMemberFixture",
-      "    outer1",
+      "    \"outer1\"",
       "      Inner",
       "        inner()",
-      "    outer2",
+      "    \"outer2\"",
       "      Inner",
       "        inner()",
     )

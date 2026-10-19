@@ -28,7 +28,7 @@ class EagerSuiteTest {
     val plan = EagerParamsTestSupport.discoverSuite(EagerAggregateFixture::class.java)
 
     assertThat(EagerParamsTestSupport.plannedInvocations(plan, EagerParamsTestSupport.eagerRoot(plan)))
-      .containsExactly("base1", "base2")
+      .containsExactly("\"base1\"", "\"base2\"")
   }
 
   @Test
@@ -61,7 +61,7 @@ class EagerSuiteTest {
   fun `each invocation of a claimed class inside a suite runs exactly once`() {
     val run = EagerParamsTestSupport.runSuite(EagerAggregateFixture::class.java)
 
-    assertThat(run.invocationNames()).containsExactly("base1", "base2")
+    assertThat(run.invocationNames()).containsExactly("\"base1\"", "\"base2\"")
     assertThat(run.recorded).containsExactly("dropIn:base1", "dropIn:base2")
   }
 

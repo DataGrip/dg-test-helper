@@ -28,7 +28,7 @@ class EagerIterationSelectorTest {
 
     assertThat(EagerParamsTestSupport.plannedInvocations(
       plan, EagerParamsTestSupport.eagerRoot(plan), setOf(TEMPLATE_INVOCATION_SEGMENT),
-    )).containsExactly("m2")
+    )).containsExactly("\"m2\"")
     assertThat(plan.countTestIdentifiers { it.isTest }).isEqualTo(1)
   }
 
@@ -38,7 +38,7 @@ class EagerIterationSelectorTest {
 
     assertThat(run.failureMessages()).isEmpty()
     assertThat(run.recorded).containsExactly("param:m2")
-    assertThat(run.startedTests()).containsExactly("m2")
+    assertThat(run.startedTests()).containsExactly("\"m2\"")
     assertThat(run.skipped()).isEmpty()
   }
 
@@ -53,7 +53,7 @@ class EagerIterationSelectorTest {
     val full = EagerParamsTestSupport.discoverEager(ParameterizedMethodFixture::class.java)
     val root = EagerParamsTestSupport.eagerRoot(full)!!
     val template = full.getChildren(full.getChildren(root).single()).single()
-    val second = EagerParamsTestSupport.child(full, template, "m2")
+    val second = EagerParamsTestSupport.child(full, template, "\"m2\"")
 
     val run = EagerParamsTestSupport.run(listOf(DiscoverySelectors.selectUniqueId(second.uniqueId)), eager = true)
 
@@ -61,7 +61,7 @@ class EagerIterationSelectorTest {
     assertThat(run.recorded).containsExactly("param:m2")
     assertThat(EagerParamsTestSupport.plannedInvocations(
       run.discoveredPlan, EagerParamsTestSupport.eagerRoot(run.discoveredPlan), setOf(TEMPLATE_INVOCATION_SEGMENT),
-    )).containsExactly("m2")
+    )).containsExactly("\"m2\"")
     assertThat(run.skipped()).isEmpty()
   }
 
