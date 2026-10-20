@@ -70,7 +70,8 @@ class DGConfigurationExtension : RunConfigurationExtension() {
     if (!params.hasProperty(REMOTE_DEBUG) && DGTestSettings.getInstance(project).isAttachRemote()) {
       params.defineProperty(REMOTE_DEBUG, "true")
     }
-    if (DGTestSettings.getInstance(project).isEagerParams()) {
+    // Not for Bazel: it takes nothing but the VM options from here, so the jar has no way onto its classpath.
+    if (configuration is JavaTestConfigurationBase && DGTestSettings.getInstance(project).isEagerParams()) {
       eagerParamsJar()?.let { parameters.classPath.add(it.toString()) }
     }
   }
@@ -103,6 +104,29 @@ class DGConfigurationExtension : RunConfigurationExtension() {
     variants.addAll(settings.getFilters())
     variants.add(manage)
     val res = Ref.create<String>()
+    // A Bazel run asks from a background coroutine; the popup and its secondary loop both need the EDT.
+    ApplicationManager.getApplication().invokeAndWait { choose(project, settings, variants, noFilter, manage, res) }
+    if (res.isNull) throw ProcessCanceledException()
+    if (manage == res.get()) {
+      ApplicationManager.getApplication().invokeLater {
+        val action: AnAction = ActionManager.getInstance().getAction("DGManageFilters")
+          ?: throw AssertionError("No manage action")
+        val frame = WindowManager.getInstance().getFrame(project)
+        ActionUtil.invokeAction(action, DataManager.getInstance().getDataContext(frame), ActionPlaces.KEYBOARD_SHORTCUT, null, null)
+      }
+      throw ProcessCanceledException()
+    }
+    return if (noFilter == res.get()) null else res.get()
+  }
+
+  private fun choose(
+    project: Project,
+    settings: DGTestSettings,
+    variants: List<String>,
+    noFilter: String,
+    manage: String,
+    res: Ref<String>,
+  ) {
     val loop = Toolkit.getDefaultToolkit().systemEventQueue.createSecondaryLoop()
     JBPopupFactory.getInstance().createPopupChooserBuilder(variants)
       .setSelectedValue(settings.getCurrent(), true)
@@ -124,22 +148,38 @@ class DGConfigurationExtension : RunConfigurationExtension() {
       .createPopup()
       .showCenteredInCurrentWindow(project)
     loop.enter()
-    if (res.isNull) throw ProcessCanceledException()
-    if (manage == res.get()) {
-      ApplicationManager.getApplication().invokeLater {
-        val action: AnAction = ActionManager.getInstance().getAction("DGManageFilters")
-          ?: throw AssertionError("No manage action")
-        val frame = WindowManager.getInstance().getFrame(project)
-        ActionUtil.invokeAction(action, DataManager.getInstance().getDataContext(frame), ActionPlaces.KEYBOARD_SHORTCUT, null, null)
-      }
-      throw ProcessCanceledException()
-    }
-    return if (noFilter == res.get()) null else res.get()
   }
 
   override fun isApplicableFor(configuration: RunConfigurationBase<*>): Boolean {
-    val javaConfig = ObjectUtils.tryCast(configuration, JavaTestConfigurationBase::class.java) ?: return false
+    val javaConfig = ObjectUtils.tryCast(configuration, JavaTestConfigurationBase::class.java)
+      ?: return isBazelDbeConfiguration(configuration)
     return javaConfig.modules.any { it.name.startsWith("intellij.database") }
+  }
+
+  /**
+   * A Bazel run configuration of a target under `//dbe`.
+   *
+   * The Bazel plugin runs this extension itself, against an empty [JavaParameters], and passes on only the VM
+   * options, each as `--wrapper_script_flag=--jvm_flag=`. It does so when it runs the test script directly:
+   * always under Debug, and under Run with `run_config_run_with_bazel: false`, as the monorepo's
+   * `.bazelproject` has it. Under `bazel test` no extension is consulted at all.
+   *
+   * By reflection, so that neither building nor loading this plugin needs the Bazel one. The targets are
+   * labels, and a label prints as `@//dbe/database/tests:tests_test`.
+   */
+  private fun isBazelDbeConfiguration(configuration: RunConfigurationBase<*>): Boolean {
+    if (configuration.type.id != "BazelRunConfigurationType") return false
+    val targets = try {
+      configuration.javaClass.getMethod("getTargets").invoke(configuration) as? List<*>
+    }
+    catch (e: ReflectiveOperationException) {
+      thisLogger().warn("Bazel run configuration has no targets to look at", e)
+      null
+    }
+    return targets.orEmpty().any {
+      val pkg = it.toString().substringAfter("//").substringBefore(':')
+      pkg == "dbe" || pkg.startsWith("dbe/")
+    }
   }
 
   override fun attachToProcess(
